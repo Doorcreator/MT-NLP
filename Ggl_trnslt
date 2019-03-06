@@ -1,0 +1,87 @@
+import time,pyautogui,win32gui,pyautogui,pyperclip
+from selenium import webdriver
+from selenium.webdriver.common.by import By
+from selenium.webdriver.common.keys import Keys
+start = time.time()	# Mark start time of processing
+pyautogui.FAILSAFE = True
+pyautogui.click(1366,768)
+# Click icons representing target procedurses on the screen after recognizing them by picture pixel
+for i in [1,2,3,4,5]:
+	cal=[]
+	try:
+		cal=pyautogui.locateCenterOnScreen('C:\\Users\\Kelv\\Pictures\\trds_bar'+str(i)+'.PNG')
+		pyautogui.click(cal[:2])
+	except Exception as err:
+		print('Oops! trds_bar'+str(i)+'.PNG not found!')
+		print(err)
+# time.sleep(1)
+# Locate the beginning point of translation unit(TU)
+pyautogui.moveRel(-200,13)
+pyautogui.click()
+time.sleep(2)
+src_lang_clpbrd=[]
+cTU = 200	# Preset number of TUs
+aTU = 0	# Actual number of TUs determined during code running
+#	Copy all source TUs to clipboard and store them in a list
+for j in range(cTU):
+	pyautogui.hotkey('ctrl','a')
+	pyautogui.hotkey('ctrl','x')
+	src_lang_clpbrd.append(pyperclip.paste())
+	pyautogui.press('down')
+	aTU = aTU+1
+#	Jump out of loop when the last two elements in the list are identical, that is the position in Trados where a blank TU is recognized or end of file is reached
+	if len(src_lang_clpbrd)>1 and src_lang_clpbrd[len(src_lang_clpbrd)-1]==src_lang_clpbrd[len(src_lang_clpbrd)-2]: 
+		src_lang_clpbrd.pop()
+		aTU = aTU -1
+		pyautogui.press('up')
+		break
+# -----------------------------------------------------------------------------------------------
+# Open Google translate page in Chrome browser and copy the source text to the input box, and copy the target text to a clipboard and store it in a list
+driver = webdriver.Chrome()
+driver.maximize_window()
+driver.get('https://translate.google.cn/#view=home&op=translate&sl=en&tl=zh-CN')
+esl = driver.find_element_by_xpath('//*[@id="source"]')
+esl.click()
+trgt_lang_lst = []
+src_lang_n=len(src_lang_clpbrd)
+for k in range(src_lang_n):
+	esl.clear()
+	esl.send_keys(src_lang_clpbrd[k])
+	time.sleep(3)
+	try:
+		trgt_lang_retrv = driver.find_element_by_xpath('/html/body/div[2]/div[1]/div[3]/div[1]/div[1]/div[2]/div[3]/div[1]/div[2]/div/span[1]/span')
+		trgt_lang_lst.append(trgt_lang_retrv.text)
+	except Exception as err2:
+		trgt_lang_lst.append(' ')
+		print(err2)
+#	Come back to Trados
+for i in [1,2,3,4]:
+	cal=[]
+	try:
+		cal=pyautogui.locateCenterOnScreen('C:\\Users\\Kelv\\Pictures\\trds_bar'+str(i)+'.PNG')
+		pyautogui.click(cal[:2])
+	except Exception as err:
+		print('Oops! trds_bar'+str(i)+'.PNG not found!')
+		print(err)
+#	Copy the target text to the input box in Trados
+for u in range(aTU):
+	pyautogui.press('up')
+for v in range(aTU):
+	trgt_lang_clpbrd = trgt_lang_lst[0]
+	pyperclip.copy(trgt_lang_clpbrd)
+	pyautogui.hotkey('ctrl','v')
+	pyautogui.press('down')
+	trgt_lang_lst.pop(0)
+#	Calculate the time elapsed
+end = time.time()
+def prcss_tm(intrvl):
+	m, s = divmod(intrvl, 60)
+	h, m = divmod(m, 60)
+	if h==0:
+		if m==0:
+			return ' %01d'%(s)+' sec '
+		else:
+			return ' %01d'%(m)+' min '+'%01d'%(s)+' sec '
+	else:
+		return ' %01d'%(h)+' hr '+'%01d'%(m)+' min '+'%01d'%(s)+' sec '
+print('Excellent job! '+str(aTU)+' TUs have been auto-translated in'+str(prcss_tm(end-start))+'by Google translate.')
