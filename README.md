@@ -8,4 +8,4 @@
 [OmegaT](http://omegat.org/)
 
 [Goslate](http://zhuoqiang.me/goslate-free-google-translate-api.html)
-: Goslate 免费谷歌翻译(模拟)
+: Goslate 免费谷歌翻译(模拟Google translate API)
