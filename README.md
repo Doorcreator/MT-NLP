@@ -7,15 +7,15 @@
 # Open-source CAT application
 [OmegaT](http://omegat.org/)
 
-[Goslate](https://pypi.org/project/goslate/)
-: 模拟Google translate api
+[goslate](https://pypi.org/project/goslate/)
+: a python package using Google translate api
 相关说明：http://zhuoqiang.me/goslate-free-google-translate-api.html
 
-[Googletrans](https://pypi.org/project/googletrans/)
+[googletrans](https://pypi.org/project/googletrans/)
 : a python package using Google translate api
 
-[]()
-:
+[mtranslate/](https://pypi.org/project/mtranslate/)
+: a python package using Google translate api
 
 []()
 :
