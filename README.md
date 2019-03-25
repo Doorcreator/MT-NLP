@@ -8,4 +8,16 @@
 [OmegaT](http://omegat.org/)
 
 [Goslate](http://zhuoqiang.me/goslate-free-google-translate-api.html)
-: 模拟Google translate API
+: 模拟Google translate api
+
+[Googletrans](https://pypi.org/project/googletrans/)
+: a python package using Google translate api
+
+[]()
+:
+
+[]()
+:
+
+[]()
+:
