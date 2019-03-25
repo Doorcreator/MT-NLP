@@ -6,3 +6,5 @@
 : Translation API for CN-EN available.
 # Open-source CAT application
 [OmegaT](http://omegat.org/)
+
+[Goslate](http://zhuoqiang.me/goslate-free-google-translate-api.html)
