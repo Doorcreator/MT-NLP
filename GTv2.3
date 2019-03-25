@@ -1,0 +1,103 @@
+import time,pyautogui,win32gui,pyperclip,os,winsound,random
+from selenium import webdriver
+from selenium.webdriver.common.by import By
+from selenium.webdriver.common.keys import Keys
+alrm = True
+pyautogui.FAILSAFE = True
+start = time.time()
+pyautogui.click(1366,768)
+for i in [1,2,3,4,5]:
+	cal=[]
+	try:
+		# Change the following path as needed.
+		cal=pyautogui.locateCenterOnScreen('C:\\Users\\Kelv\\Pictures\\trds_bar'+str(i)+'.PNG')
+		pyautogui.click(cal[:2])
+	except Exception as err:
+		print('Oops! trds_bar'+str(i)+'.PNG not found!')
+		print(err)
+time.sleep(1)
+pyautogui.moveRel(-200,13)
+pyautogui.click()
+time.sleep(2)
+# Change cTU as needed.
+cTU = 30
+aTU = 0
+src_txt=[]
+fl=[]
+for j in range(cTU):
+	pyautogui.hotkey('ctrl','a')
+	pyautogui.hotkey('ctrl','x')
+	EOF_TU=pyperclip.paste()
+	src_txt.append(EOF_TU)
+	pyautogui.press('down')
+	aTU = aTU+1
+	# Change EOF_TU 'Oops! This is the last TU.' as needed. EOF_TU marks the end of the file to be translated, i.e., the final piece of TU.
+	if EOF_TU=='The final piece of TU':
+		break
+	print('aTU/cTU: '+str(aTU)+'/'+str(cTU))
+for u in range(aTU):
+	pyautogui.press('up')
+time.sleep(3)
+driver = webdriver.Chrome()
+driver.maximize_window()
+driver.get('https://translate.google.cn/#view=home&op=translate&sl=en&tl=zh-CN')
+esl = driver.find_element_by_xpath('//*[@id="source"]')
+esl.click()
+trgt_txt = []
+for k in range(aTU):
+	esl.clear()
+	esl.send_keys(src_txt[k])
+	time.sleep(round(1+(random.random())*3,2))
+	try:
+		trgt_lang_retrv = driver.find_element_by_xpath('/html/body/div[2]/div[1]/div[3]/div[1]/div[1]/div[2]/div[3]/div[1]/div[2]/div/span[1]')
+		trgt_txt.append(trgt_lang_retrv.text)
+	except Exception as err2:
+		trgt_txt.append(' ')
+		print(err2)
+	time.sleep(round(2+(random.random())*4,2))
+	if (k+1)%5==0:
+		print('Translation progressing to '+'%.0f%%'%(((k+1)/aTU)*100)+' ===>>> '+str(k+1)+'/'+str(aTU)+'\n')
+		if aTU-(k+1) < 3 and alrm == True:
+			winsound.Beep(400,1000)
+			time.sleep(1)
+			winsound.Beep(550,1000)
+			time.sleep(1)
+			winsound.Beep(650,1000)
+			alrm = False
+for i in [1,2,3,4,5]:
+	cal=[]
+	try:
+		cal=pyautogui.locateCenterOnScreen('C:\\Users\\Kelv\\Pictures\\trds_bar'+str(i)+'.PNG')
+		pyautogui.click(cal[:2])
+	except Exception as err:
+		print('Oops! trds_bar'+str(i)+'.PNG not found!')
+		print(err)
+pyautogui.moveRel(-200,13)
+pyautogui.click()
+time.sleep(1)
+for v in range(aTU):
+		pyperclip.copy(trgt_txt[v])
+		pyautogui.hotkey('ctrl','v')
+		time.sleep(0.01)
+		pyautogui.press('down')
+		
+
+path='C:\\Users\\Kelv\\Desktop\\tsxr.txt'
+with open (path, 'w+', encoding='utf-8') as fw:
+	fw.write('')
+with open (path, 'a+', encoding='utf-8') as fr:
+	for wr in range(aTU):
+		fr.write('No. '+str(wr+1)+':\n'+src_txt[wr]+'\n'+trgt_txt[wr]+'\n'+'\n')
+
+end = time.time()
+def prcss_tm(intrvl):
+	m, s = divmod(intrvl, 60)
+	h, m = divmod(m, 60)
+	if h==0:
+		if m==0:
+			return ' %01d'%(s)+' sec '
+		else:
+			return ' %01d'%(m)+' min '+'%01d'%(s)+' sec '
+	else:
+		return ' %01d'%(h)+' hr '+'%01d'%(m)+' min '+'%01d'%(s)+' sec '
+print('Excellent job! '+str(aTU)+' TUs have been auto-translated in'+str(prcss_tm(end-start))+'by Google translate.')
