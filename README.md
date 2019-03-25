@@ -17,7 +17,7 @@
 [mtranslate/](https://pypi.org/project/mtranslate/)
 : a python package using Google translate api
 
-[]()
+[Google Translate API C#版](https://www.crifan.com/teach_you_how_to_find_free_google_translate_api/)
 :
 
 []()
