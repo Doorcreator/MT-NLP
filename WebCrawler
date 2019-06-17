@@ -1,0 +1,84 @@
+# -*- coding:utf-8 -*-
+import requests, bs4, re, logging, time, threading, math
+from selenium import webdriver
+from multiprocessing import Process
+from concurrent.futures import ThreadPoolExecutor
+from concurrent.futures import ProcessPoolExecutor
+t0 = time.time()
+import lxml.html
+logging.basicConfig(level=logging.DEBUG,
+				format='%(asctime)s %(filename)s[line:%(lineno)d] %(levelname)s %(message)s',
+				datefmt='%a, %d %b %Y %H:%M:%S',
+				filename='C:\\Users\\Kelv\\Desktop\\Pythonx\\myLog.txt',
+				filemode='w+')
+url = 'http://cncn.org.cn/map/'
+def get_community_info(url):
+	try:
+# lxml.html.parse()对网址进行解析后，生成一个类：lxml.etree._ElementTree
+# 这个树形结构是后面用xpath语法查找页面元素的基础。
+# xpath语法：http://www.w3school.com.cn/xpath/xpath_syntax.asp
+		result = lxml.html.parse(url+'intro.html')
+		e1 = result.xpath('//div[@class="head_pos"]/p/a[last()]|//span[@class="activity_address"]|//span[@class="activity_number"]')[0]
+		e2 = result.xpath('//div[@class="head_pos"]/p/a[last()]|//span[@class="activity_address"]|//span[@class="activity_number"]')[1]
+		e3 = result.xpath('//div[@class="head_pos"]/p/a[last()]|//span[@class="activity_address"]|//span[@class="activity_number"]')[2]
+		print(e1.xpath('string()'))
+		logging.debug('com_name: ' + e1.xpath('string()'))
+		print(e2.xpath('string()'))
+		logging.debug('com_addr: ' + e2.xpath('string()'))
+		print(e3.xpath('string()'))
+		logging.debug('com_number: ' + e3.xpath('string()'))
+	except Exception as e:
+		print(e)
+def get_suburl(url, pattern):
+	url_lst={}
+	opt = webdriver.ChromeOptions()
+	opt.add_argument('--headless')
+	driver = webdriver.Chrome(options = opt)
+	driver.get(url)
+	ele = driver.find_elements_by_tag_name('a')
+	if ele is not None:
+		for subele in ele:
+			if re.search(pattern, subele.get_attribute('href')):
+				url_lst[''.join(re.split('[/.?=]', subele.get_attribute('href'))[-2:])]=subele.get_attribute('href')
+	driver.quit()
+	return url_lst
+def exeMulti():
+	patrn_si = r'http://[a-z]{2,}\.cncn\.org\.cn/\w{2,}/\w{2,}/'
+	surl = 'http://www.cncn.org.cn/map/community.php?sid=2117'
+	LoE = list(get_suburl(surl, patrn_si).values())
+	NoE = len(LoE)
+	T = []
+	# for x in LoE:
+		# print(x)
+		# get_community_info(x)
+		
+	# for i in range(math.ceil(NoE/16)):					# 27 s
+		# for j in range(i*16,(i+1)*16):
+			# try:
+				# thread = threading.Thread(target = get_community_info, args = (LoE[j],))
+				# T.append(thread)
+				# thread.start()
+			# except Exception as e:
+				# print(e)
+	# for t in T:
+		# t.join()
+
+	# i=0													# 72 s
+	# while i<=NoE:
+		# try:
+			# with ThreadPoolExecutor(max_workers=16) as executor:
+				# F = executor.submit(get_community_info, LoE[i])
+		# except Exception as e:
+			# print(e)
+		# i+=1
+
+	with ThreadPoolExecutor(max_workers=16) as executor:	# 26 s
+		F = executor.map(get_community_info, LoE)
+
+	# with ProcessPoolExecutor(max_workers=16) as executor:	# 24 s
+		# F = executor.map(get_community_info, LoE)
+
+if __name__ == '__main__':
+	exeMulti()
+	t1=time.time()
+	print(t1-t0)
